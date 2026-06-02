@@ -1,3 +1,4 @@
+//synchronous as same clk is given to all the flip flop
 module universal_counter(input clk,rst,enb ,up_downbar , input [1:0]mode,output reg mod_2counter,
 output reg [1:0] mod_4counter,
 output reg[2:0] mod_8counter,

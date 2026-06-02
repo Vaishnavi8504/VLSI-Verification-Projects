@@ -1,15 +1,15 @@
 
 module universal_counter_tb();
-reg clk,rst,enb;
+reg clk,rst,enb,up_downbar;
 reg [1:0]mode;
 wire mod_2counter;
 wire [1:0] mod_4counter;
 wire[2:0] mod_8counter;
 wire [3:0] mod_16counter;
-universal_counter dut (clk,rst,enb,mode,mod_2counter,mod_4counter,mod_8counter,mod_16counter);
+  universal_counter dut (clk,rst,enb,up_downbar,mode,mod_2counter,mod_4counter,mod_8counter,mod_16counter);
 initial 
 begin
-{clk,rst,enb,mode}=0;
+  {clk,rst,enb,mode,up_downbar}=0;
 end
 always #5 clk=~clk;
 initial 
@@ -19,6 +19,7 @@ rst=1;
 rst=0;
 #10;
 enb=1;
+  up_downbar=1'b0;
 mode=2'b00;
 #70;
 enb=0;

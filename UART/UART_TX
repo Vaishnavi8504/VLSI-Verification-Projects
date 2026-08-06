@@ -1,1 +1,94 @@
+module uart_tx (
+input clk,rst,tx_start,
+  input [7:0] tx_data,
+  output reg tx,tx_done 
+);
+  parameter clk_per_cycle=8;
+  parameter idle=0;
+  parameter start =1;
+  parameter data =2;
+  parameter stop=3;
+  parameter cleanup=4;
+  
+  reg [2:0] state;
+  reg[15:0] clk_count;
+  reg[2:0] bit_index;
+   
+  always @(posedge clk or posedge rst)
+    begin 
+      if (rst)
+        begin
+        state<=idle;
+        tx<=1'b1;
+      bit_index<=0;
+      clk_count<=0;
+          tx_done<=0;
+        end
+      else 
+        begin
+          case(state) 
+        idle:
+               begin
+                tx_done<=0;
+                tx<=1'b1;
+                 bit_index<=0;
+                 clk_count<=0;
+                
+                if (tx_start)
+                  state<=start;
+                 end
+          start:
+               begin
+                 tx<=1'b0;
+                 if(clk_count<clk_per_cycle-1)
+                   clk_count<=clk_count+1;
+                 else 
+                   begin
+                   clk_count<=0;
+                 state<=data;
+                   end
+               end
+         data:
+            begin
+              tx<=tx_data[bit_index];
+            if (clk_count<clk_per_cycle-1)
+              clk_count<=clk_count+1;
+            else 
+              begin
+                clk_count<=0;
+                if (bit_index<7)
+                  bit_index<=bit_index+1;
+                else 
+                  begin 
+                    bit_index<=0;
+                    state<=stop;
+                  end 
+               end
+             end
+          stop:
+            begin
+            tx<=1'b1;
+              if (clk_count<clk_per_cycle-1)
+                clk_count<=clk_count+1;
+              else 
+                begin
+                  clk_count<=0;
+                  tx_done<=1'b1;
+                  state<=cleanup;
+                end
+             end
+          cleanup:
+            begin
+              tx_done<=0;
+              state<=idle;
+            end
+          endcase
+     end
+ end 
+ endmodule
 
+
+  
+  
+  
+  

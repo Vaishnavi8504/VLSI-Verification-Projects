@@ -1,0 +1,46 @@
+module uart_tb();
+  parameter clk_per_cycle=8;
+  reg clk;
+  reg rst;
+  reg tx_start;
+  reg [7:0] tx_data;
+  wire tx;
+  wire tx_done;
+  wire rx_done;
+  wire [7:0] rx_data;
+  
+  uart_tx dut ( clk,rst,tx_start,tx_data,tx,tx_done);
+  uart_rx dut1 (clk,rst,tx,rx_done,rx_data);
+  
+  initial begin
+    $dumpfile("dump.vcd");
+    $dumpvars(0, uart_tb);
+end
+  initial begin
+    clk=0;
+    rst=0;
+    tx_start=0;
+   end 
+  always  #5 clk=~clk;
+  initial  begin 
+    rst=1'b1;
+    tx_start=0;
+    tx_data=8'h00;
+    #20;
+    rst=0;
+    //send data
+    @(posedge clk)
+    tx_data=8'hAf;
+    tx_start=1;
+    @(posedge clk)
+    tx_start=0;
+    //wait for reciever to reciever the data
+    wait (rx_done);
+    if(rx_data==tx_data)
+      $display("test case pass : tx=%d , rx=%d", tx_data ,rx_data);
+     else 
+       $display("test case fail : tx=%d , rx=%d", tx_data ,rx_data);
+    #50;
+    $finish;
+  end
+endmodule

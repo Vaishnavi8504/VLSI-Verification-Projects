@@ -1,0 +1,94 @@
+
+module i2c_protocal(
+input clk, rst,ready,
+input  [6:0] slave_add,
+input [7:0] data_in,
+output  scl, 
+output reg done,sda
+ );
+//here  defining the state it will take to complete the transmission 
+assign scl=clk;
+parameter idle=3'd0;
+parameter start=3'd1;
+parameter address=3'd2;
+parameter ack1=3'd3;
+parameter data=3'd4;
+parameter ack2=3'd5;
+parameter stop=3'd6;
+reg [2:0] state; 
+//registers to store the temporary data 
+reg [7:0] shift_reg;
+reg [3:0] bit_count;
+always @(negedge clk or posedge rst )
+  begin 
+  if (rst) // reset logic
+  begin
+  state<=idle;
+  bit_count<=0;
+  done<=0;
+  sda<=1;
+  end
+///////////////////////////////
+  else 
+   begin 
+   case (state) // different stages of i2c there 7 stages idle ->start->address->ack1->data->ack2->stop
+   idle:
+     begin
+       bit_count<=0;
+        done<=0;
+       sda<=1;
+        if (ready)
+        state<=start;
+       end
+////////////////////////////
+   start:
+    begin
+     sda<=0;
+     shift_reg<={slave_add,1'b0};
+     bit_count<=7;
+     state<=address;
+     end
+/////////////////////////
+  address:
+     begin
+     sda<=shift_reg[bit_count];
+     if (bit_count==0)
+      state<=ack1;
+      else
+      bit_count=bit_count-1;
+      end
+//////////////////////////////////
+  ack1:
+     begin
+     sda<=0;
+     shift_reg<=data_in;
+     state<=data;
+     end
+////////////////////////////////////
+ data:
+    begin
+    sda<=shift_reg[bit_count];
+    if (bit_count==0)
+      state<=ack2;
+    else 
+      bit_count<=bit_count-1;
+    end
+/////////////////////////////////////
+ ack2:
+     begin
+      sda<=0;
+      state<=stop;
+     end
+//////////////////////////////////////////////
+  stop:
+      begin 
+      sda<=1;
+      state<=idle;
+      end 
+////////////////////////////////////////////
+   default:
+   state<=idle;
+ endcase
+ end 
+end
+endmodule 

@@ -1,0 +1,25 @@
+module sr_flipflop(
+  input clk,rst,s,r,q,
+  output reg next_q,next_qbar);// rtl code of sr flipflop using the characteristic equation and using system verilog loop method in test bench 
+  always @(posedge clk)
+    begin 
+      if(rst)
+        begin
+          next_q<=0;
+          next_qbar<=1;
+        end
+      else 
+       begin
+         if (s==1&& r==1)
+           begin
+           next_q<=1'bx;
+       next_qbar<=1'bx;
+           end
+           else 
+             begin
+        next_q<=(s|~r&q);
+        next_qbar<=~next_q;
+             end
+       end
+    end
+endmodule

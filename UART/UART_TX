@@ -26,7 +26,7 @@ input clk,rst,tx_start,
         end
       else 
         begin
-          case(state) 
+          case(state) //here five stages are used to transmit the data  from tansmitter to reciever 
         idle:
                begin
                 tx_done<=0;

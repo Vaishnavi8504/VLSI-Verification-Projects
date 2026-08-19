@@ -1,0 +1,11 @@
+module jk_flipflop(
+input clk,rst,j,k, q,
+output reg next_q);
+always @(posedge clk)
+if (rst)
+next_q<=0;
+else
+begin
+  next_q=((j&~q)|~k&q);
+end
+endmodule

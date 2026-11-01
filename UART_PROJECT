@@ -15,7 +15,7 @@ module uart_tx(input clk,rst,tx_start,input [7:0]tx_data,
         begin
         clk_count<=0;
       bit_index<=0;
-      tx<=0;
+      tx<=1'b1;
       tx_done<=0;
       state<=idle;
         end
